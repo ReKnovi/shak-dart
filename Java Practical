@@ -1,0 +1,264 @@
+SET A
+
+1. 
+package javaapplication5; (FILE KO NAME JUN HO TYO)
+
+class Animal {
+    void sound() {
+        System.out.println("Animal makes a sound");
+    }
+}
+
+class Dog extends Animal {
+    @Override
+    void sound() {
+        System.out.println("Dog barks");
+    }
+}
+
+class Cat extends Animal {
+    @Override
+    void sound() {
+        System.out.println("Cat meows");
+    }
+}
+
+public class JavaApplication5 { (SAME FOR HERE)
+    public static void main(String[] args) {
+        Animal animal1 = new Dog(); // Dynamic polymorphism
+        Animal animal2 = new Cat(); // Dynamic polymorphism
+
+        animal1.sound(); // Calls Dog's sound method
+        animal2.sound(); // Calls Cat's sound method
+    }
+}
+
+
+2. FOR FILE RegisterForm.java
+
+package registrationform;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class RegistrationForm extends JFrame {
+    private JTextField idField, usernameField;
+    private JPasswordField passwordField, rePasswordField;
+    private JRadioButton maleRadio, femaleRadio;
+    private JCheckBox javaCheckBox, pythonCheckBox, cppCheckBox;
+    private JComboBox<String> countryComboBox;
+    private JButton submitButton, resetButton;
+
+    public RegistrationForm() {
+        setTitle("Registration Form");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(9, 2));
+
+        // Labels and Text Fields
+        add(new JLabel("ID:"));
+        idField = new JTextField();
+        add(idField);
+
+        add(new JLabel("Username:"));
+        usernameField = new JTextField();
+        add(usernameField);
+
+        add(new JLabel("Password:"));
+        passwordField = new JPasswordField();
+        add(passwordField);
+
+        add(new JLabel("Re-enter Password:"));
+        rePasswordField = new JPasswordField();
+        add(rePasswordField);
+
+        // Gender Radio Buttons
+        add(new JLabel("Gender:"));
+        JPanel genderPanel = new JPanel();
+        maleRadio = new JRadioButton("Male");
+        femaleRadio = new JRadioButton("Female");
+        ButtonGroup genderGroup = new ButtonGroup();
+        genderGroup.add(maleRadio);
+        genderGroup.add(femaleRadio);
+        genderPanel.add(maleRadio);
+        genderPanel.add(femaleRadio);
+        add(genderPanel);
+
+        // Course Checkboxes
+        add(new JLabel("Course:"));
+        JPanel coursePanel = new JPanel();
+        javaCheckBox = new JCheckBox("Java");
+        pythonCheckBox = new JCheckBox("Python");
+        cppCheckBox = new JCheckBox("C++");
+        coursePanel.add(javaCheckBox);
+        coursePanel.add(pythonCheckBox);
+        coursePanel.add(cppCheckBox);
+        add(coursePanel);
+
+        // Country Combo Box
+        add(new JLabel("Country:"));
+        String[] countries = {"USA", "Canada", "UK", "Australia", "India"};
+        countryComboBox = new JComboBox<>(countries);
+        add(countryComboBox);
+
+        // Submit and Reset Buttons
+        submitButton = new JButton("Submit");
+        resetButton = new JButton("Reset");
+        add(submitButton);
+        add(resetButton);
+
+        // Add action listeners
+        submitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                submitForm();
+            }
+        });
+
+        resetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                resetForm();
+            }
+        });
+
+        setVisible(true);
+    }
+
+    private void submitForm() {
+        // Validate form fields
+        if (idField.getText().isEmpty() || usernameField.getText().isEmpty() || 
+            String.valueOf(passwordField.getPassword()).isEmpty() ||
+            String.valueOf(rePasswordField.getPassword()).isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            return;
+        }
+
+        if (!String.valueOf(passwordField.getPassword()).equals(String.valueOf(rePasswordField.getPassword()))) {
+            JOptionPane.showMessageDialog(this, "Passwords do not match.");
+            return;
+        }
+
+        // Get selected gender
+        String gender = maleRadio.isSelected() ? "Male" : "Female";
+
+        // Get selected courses
+        StringBuilder courses = new StringBuilder();
+        if (javaCheckBox.isSelected()) {
+            courses.append("Java ");
+        }
+        if (pythonCheckBox.isSelected()) {
+            courses.append("Python ");
+        }
+        if (cppCheckBox.isSelected()) {
+            courses.append("C++ ");
+        }
+
+        // Get selected country
+        String country = (String) countryComboBox.getSelectedItem();
+
+        // Insert data into database
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/mydatabase", "root", "");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users (id, username, gender, courses, country) VALUES (?, ?, ?, ?, ?)");
+            pstmt.setString(1, idField.getText());
+            pstmt.setString(2, usernameField.getText());
+            pstmt.setString(3, gender);
+            pstmt.setString(4, courses.toString());
+            pstmt.setString(5, country);
+            pstmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Record inserted successfully.");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error inserting record: " + ex.getMessage());
+        }
+    }
+
+    private void resetForm() {
+        idField.setText("");
+        usernameField.setText("");
+        passwordField.setText("");
+        rePasswordField.setText("");
+        maleRadio.setSelected(false);
+        femaleRadio.setSelected(false);
+        javaCheckBox.setSelected(false);
+        pythonCheckBox.setSelected(false);
+        cppCheckBox.setSelected(false);
+        countryComboBox.setSelectedIndex(0);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new RegistrationForm();
+            }
+        });
+    }
+}
+
+
+
+Database ma mydatabase new database vanne banaune ani create table ma SQL ma gayera put this code:
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    gender VARCHAR(10),
+    courses VARCHAR(100),
+    country VARCHAR(50)
+);
+
+
+—----------------------------------------------------------------------------------------------------------------
+
+
+SET B
+For file name Main.java 
+
+
+package main;
+abstract class Calculation {
+    int add(int x, int y) {
+        return x + y;
+    }
+
+    abstract int mul(int x, int y);
+}
+
+class Demo extends Calculation {
+    int mul(int x, int y) {
+        return x * y;
+    }
+
+    int calcDiv(int x, int y) {
+        if (y == 0) {
+            System.out.println("Cannot divide by zero.");
+            return 0;
+        }
+        return x / y;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Demo obj = new Demo();
+
+        // Demonstrating add and mul methods from the abstract class
+        int sum = obj.add(5, 3);
+        int product = obj.mul(5, 3);
+        System.out.println("Sum: " + sum);
+        System.out.println("Product: " + product);
+
+        // Demonstrate calcDiv method from Demo class
+        int division = obj.calcDiv(10, 2);
+        System.out.println("Division: " + division);
+
+        // Accessing add and mul methods from the abstract class using reference of abstract class
+        Calculation ref = new Demo(); // Reference of abstract class pointing to Demo object
+        int result1 = ref.add(8, 2);
+        int result2 = ref.mul(8, 2);
+        System.out.println("Sum using abstract class reference: " + result1);
+        System.out.println("Product using abstract class reference: " + result2);
+    }
+}
+
+
