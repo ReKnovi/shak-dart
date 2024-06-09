@@ -1,0 +1,125 @@
+Draw a one-to-many line from Employee.ID to Employee.supervisor_id.
+Draw a one-to-many line from Employee.ID to Dependent.emp_id.
+Draw a many-to-one line from Employee.ID to Department.ID.
+Draw a one-to-many line from Department.ID to Project.dept_id.
+Draw many-to-many lines between Employee.ID and Project.ID using the junction table Employee_Project.
+code: ---------------------------------------------------------------------------------------------
+CREATE DATABASE CompanyDB;
+USE CompanyDB;
+
+CREATE TABLE Employee (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    fname VARCHAR(50),
+    mname VARCHAR(50),
+    lname VARCHAR(50),
+    gender ENUM('M', 'F'),
+    DOB DATE,
+    Address VARCHAR(255),
+    salary DECIMAL(10, 2),
+    supervisor_id INT,
+    FOREIGN KEY (supervisor_id) REFERENCES Employee(ID)
+);
+
+CREATE TABLE Dependent (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    emp_id INT,
+    name VARCHAR(150),
+    gender ENUM('M', 'F'),
+    DOB DATE,
+    relationship VARCHAR(50),
+    FOREIGN KEY (emp_id) REFERENCES Employee(ID)
+);
+
+CREATE TABLE Department (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Location VARCHAR(100),
+    Name VARCHAR(100)
+);
+
+CREATE TABLE Project (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100),
+    emp_id INT,
+    dept_id INT,
+    FOREIGN KEY (emp_id) REFERENCES Employee(ID),
+    FOREIGN KEY (dept_id) REFERENCES Department(ID)
+);
+
+CREATE TABLE Employee_Project (
+    emp_id INT,
+    project_id INT,
+    PRIMARY KEY (emp_id, project_id),
+    FOREIGN KEY (emp_id) REFERENCES Employee(ID),
+    FOREIGN KEY (project_id) REFERENCES Project(ID)
+);
+--------------------------------------insert data---------------------------------------------------
+-- Insert Employees
+INSERT INTO Employee (fname, mname, lname, gender, DOB, Address, salary, supervisor_id)
+VALUES 
+('John', 'A', 'Doe', 'M', '1980-01-15', '123 Elm St', 70000.00, NULL),
+('Jane', 'B', 'Smith', 'F', '1985-05-20', '456 Oak St', 75000.00, 1),
+('Jim', 'C', 'Beam', 'M', '1990-07-25', '789 Pine St', 60000.00, 1),
+('Jill', 'D', 'Stark', 'F', '1995-09-10', '321 Maple St', 65000.00, 2),
+('Jake', 'E', 'Long', 'M', '2000-11-30', '654 Birch St', 80000.00, 2);
+
+-- Insert Dependents
+INSERT INTO Dependent (emp_id, name, gender, DOB, relationship)
+VALUES 
+(1, 'Anna Doe', 'F', '2005-02-14', 'Daughter'),
+(2, 'Brian Smith', 'M', '2010-03-21', 'Son'),
+(3, 'Cathy Beam', 'F', '2012-04-28', 'Daughter'),
+(4, 'David Stark', 'M', '2015-05-05', 'Son'),
+(5, 'Eva Long', 'F', '2018-06-10', 'Daughter');
+
+-- Insert Departments
+INSERT INTO Department (Location, Name)
+VALUES 
+('New York', 'HR'),
+('San Francisco', 'Engineering'),
+('Chicago', 'Marketing'),
+('Seattle', 'Sales');
+
+-- Insert Projects
+INSERT INTO Project (Name, emp_id, dept_id)
+VALUES 
+('Project Alpha', 1, 2),
+('Project Beta', 2, 2),
+('Project Gamma', 3, 3),
+('Project Delta', 4, 4),
+('Project Epsilon', 5, 1);
+
+-- Link Employees to Projects
+INSERT INTO Employee_Project (emp_id, project_id)
+VALUES 
+(1, 1),
+(2, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(1, 2),
+(3, 1),
+(4, 3),
+(5, 4);
+Query to Find the Highest Salary Employee per Project and Department-----------------------------------
+SELECT 
+    p.Name AS ProjectName,
+    d.Name AS DepartmentName,
+    e.ID AS EmployeeID,
+    CONCAT(e.fname, ' ', e.mname, ' ', e.lname) AS EmployeeName,
+    e.salary AS Salary
+FROM 
+    Project p
+JOIN 
+    Department d ON p.dept_id = d.ID
+JOIN 
+    Employee_Project ep ON p.ID = ep.project_id
+JOIN 
+    Employee e ON ep.emp_id = e.ID
+WHERE 
+    e.salary = (
+        SELECT MAX(e2.salary)
+        FROM Employee_Project ep2
+        JOIN Employee e2 ON ep2.emp_id = e2.ID
+        WHERE ep2.project_id = p.ID
+    );
