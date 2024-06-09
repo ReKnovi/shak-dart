@@ -1,0 +1,43 @@
+Question no 2: Create table employee having name, occupation, working date and Working hour. Insert 5 data on student. Also create trigger before_employee_insert during the insertion if working hour is less then 0 automatically trigger is activate to change the negative value to 0.
+-- Step 1: Create the new database and select it
+CREATE DATABASE NewCompanyDB;
+USE NewCompanyDB;
+
+-- Step 2: Create the Employee table
+CREATE TABLE Employee (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100),
+    Occupation VARCHAR(100),
+    WorkingDate DATE,
+    WorkingHour INT
+);
+
+-- Step 3: Insert initial data into the Employee table
+INSERT INTO Employee (Name, Occupation, WorkingDate, WorkingHour)
+VALUES 
+('Alice Johnson', 'Engineer', '2024-06-01', 8),
+('Bob Smith', 'Technician', '2024-06-02', 7),
+('Charlie Brown', 'Manager', '2024-06-03', -5),  -- This entry has a negative working hour
+('David Wilson', 'Developer', '2024-06-04', 6),
+('Eva Green', 'Analyst', '2024-06-05', 9);
+
+-- Step 4: Create the trigger
+DELIMITER //
+
+CREATE TRIGGER before_employee_insert
+BEFORE INSERT ON Employee
+FOR EACH ROW
+BEGIN
+    IF NEW.WorkingHour < 0 THEN
+        SET NEW.WorkingHour = 0;
+    END IF;
+END; //
+
+DELIMITER ;
+
+-- Step 5: Insert another record with negative working hour to test the trigger
+INSERT INTO Employee (Name, Occupation, WorkingDate, WorkingHour)
+VALUES ('Frank Miller', 'Consultant', '2024-06-06', -3);
+
+-- Step 6: Query the Employee table to check the data
+SELECT * FROM Employee;
